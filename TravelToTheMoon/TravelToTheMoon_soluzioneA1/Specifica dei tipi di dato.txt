@@ -1,0 +1,5 @@
+Specifica dei tipi di dato
+
+DeltaDataOra:
+	- giorno: Intero > 0
+	- ora: Ora

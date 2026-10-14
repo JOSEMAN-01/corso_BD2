@@ -1,0 +1,8 @@
+Specifica classe Itinerario
+
+	durata_g(): Intero > 0
+		pre: nessuna
+		post: 
+			Sia (this,d) il link di assoc. arrivo_finale che coinvolge 'this' (con una qualche Destinazione d).
+
+			result = (this, d).istante.giorno

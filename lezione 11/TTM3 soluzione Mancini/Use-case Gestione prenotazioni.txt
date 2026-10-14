@@ -1,0 +1,29 @@
+Use-case Gestione prenotazioni
+
+	posti_liberi(cr:Crociera): Intero
+		pre:
+			Esiste un link di associaione croc_nave che coinvolge cr.
+
+		post:
+			- Sia n:Nave l'oggetto tale che (cr, n):croc_nave.
+
+			- Sia P = { p | p:Prenotazione and (p,cr):pren_croc }
+
+			result = n.capienza - SUM  (p.posti)
+				  		p:P
+
+
+
+	nuova_prenotazione(cl:Cliente, cr:Crociera, posti: Intero > 0) : Prenotazione
+		pre: 
+			posti_liberi(cr) >= posti
+
+
+
+		post:
+			Viene creato e restituito un nuovo oggetto result:Prenotazione tale che:
+				- result.istante = l'istante corrente
+				- result.posti = posti
+
+			Viene creato il link (result, cl):pren_cliente.
+			Viene creato il link (result, cr):pren_croc.

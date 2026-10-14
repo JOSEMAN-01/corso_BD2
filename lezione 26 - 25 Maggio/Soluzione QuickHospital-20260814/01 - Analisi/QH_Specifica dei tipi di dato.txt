@@ -1,0 +1,36 @@
+Specifica dei tipi di dato
+
+Periodo:
+	- da:DataOra [0..1]
+	- a:DataOra [0..1]
+
+	[V.Periodo.legale]
+		ALL p, x,y   Periodo(p) and da(p,x) and a(p,y) --> y >= x.
+
+	interseca(p1:Periodo, p2:Periodo):Booleano
+		pre: nessuna
+		post: 
+			... // per esercizio
+
+CodiceFiscale: Stringa ~ '...'
+Email: Stringa ~ '...'
+Telefono: Stringa ~ '...'
+
+Indirizzo: 
+	- via: Stringa
+	- civico: Stringa ~ '...'
+	- cap: Stringa ~ '...'
+
+
+
+CapienzaStanza:
+	- n_letti_tipico: Intero > 0
+	- n_letti_max: Intero > 0
+
+
+[V.CapienzaStanza.n_letti_max]	
+	ALL c, t m
+		CapacitaStanza(c) and
+		n_letti_tipico(c, t) and
+		n_letti_max(c,m)
+			--> m >= t

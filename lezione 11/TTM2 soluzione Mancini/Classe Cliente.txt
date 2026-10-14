@@ -1,0 +1,11 @@
+Classe Cliente
+
+	eta(d:Data): Intero >= 0
+		pre: 
+			d >= this.nascita
+		post: 
+			L'operazione non effettua side-effect sui dati.
+
+			result =  (d - this.nascita) espressa in anni approssimata per difetto
+
+

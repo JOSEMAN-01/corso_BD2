@@ -1,0 +1,13 @@
+V.PostoDaVedere.apertura_chiusura:
+	Per ogni pdv:PostoDaVedere deve valere per ogni valore x del suo attributo orario:
+	- x.apre < x.chiude
+
+V.PostoDaVedere.orari_compatibili:
+	Per ogni pdv:PostoDaVedere non esistono due valori o1,o2 del suo attributo orario tali che:
+	- o1.giorno = o2.giorno
+	- o1.apre < o2.chiude OR o2.apre < o1.chiude
+---
+
+V.Prenotazione.istante:
+	Per ogni p:Prenotazione il valore x del suo attributo istante è minore o uguale all'istante corrente
+

@@ -1,0 +1,22 @@
+Specifica use-case Statistiche età media esotiche:
+
+	eta_media_esotiche(da:Data, a:Data): Reale >= 0
+		pre: 
+			- da <= a
+			- Sia P l'insieme di tutti gli oggetti p:Prenotazione tali che:
+				- p.istante >= da e p.istante <= a
+				- esistono c:Crociera ed i:Itinerario tali che:
+				 	- (p,c):pren_croc, e
+				 	- (c,i):croc_itin
+					- i.destinazioni() contiene una destinazione d t.c.
+					d.esotica() = true.
+
+			- Sia C l'insieme di tutti gli oggetti c:Cliente tali che:
+				(p,c):pren_cliente per un qualche p:P.
+
+			- Deve essere |C| > 0
+
+
+		post:
+			result = [ SUM  c.eta() ] / |C|
+					    c:C

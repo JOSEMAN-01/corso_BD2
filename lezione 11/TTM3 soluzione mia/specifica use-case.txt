@@ -1,0 +1,72 @@
+Specifica use-case Prenotazione
+---------------------------------
+
+prenota(cl:Cliente, cr:Crociera, nPosti: posti da prenotare): Prenotazione
+
+	pre:
+		Ci sono abbastanza posti disponibili, ovvero
+			cr.postiDisponibili() >= nPosti
+		
+		Il cliente non ha effettuato altre prenotazioni per questa crociera, ovvero
+			NOT EXISTS p: pren_cliente(cl,p) AND pren_croc(p,cr)
+		
+		La crociera non è ancora iniziata, ovvero
+			adesso < cr.inizio
+		
+	post:
+		questa operazione modifica il livello estensionale dei dati, aggiungendo un nuovo elemento "alpha" tale che
+		
+			Prenotazione(alpha) AND alpha.istante= adesso AND alpha.posti=nPosti
+		
+		viene restituito alpha
+		
+-----------------------------------------------
+Specifica use-case StatisticheClienti
+--------------------------------------------
+etaMediaEsotica(da:Data, a:Data): float
+	pre:
+		- da < a <= adesso
+		
+		- Esiste almeno un cliente che ha prenotato una crociera che prevede una destinazione esotica, ovvero l'insieme S non è vuoto (errore: non ho controllato periodo)
+			
+			S= {(cl,cl.eta())| ESISTE cl,cr,pr,i,d: Cliente(cl) AND Crociera(cr) AND Prenotazione(pr) AND pren_cliente(cl,pr) AND pren_croc(pr,cr) AND Itinerario(i) AND  croc_itin(cr,i) AND Destinazione(d) 
+			-> 
+			d.esotica() AND (partenza_iniziale(i,d) OR arrivo_finale(i,d) OR (ESISTE tp: TappaIntermedia(tp) AND itin_tappa(i,tp) AND tappa_dest(tp,d))
+			}
+	post:
+		- Non ci sono modifiche sul livello estensionale dei dati
+		- Siano 
+			b= (cl,cl.eta()) APPARTENENTE a S
+			
+			|S|= cardinalità di S
+			
+			allora
+				result= (SOMMATORIA con indice b di cl.eta()) diviso per |S|
+		- result è il valore restituito
+
+destGettonate(da: Data, a:Data): float
+
+	pre:
+		- da < a <= adesso
+		- Esiste almeno una destinazione che è raggiunta da una crociera INIZIATA E CONCLUSA (per semplificare problema) nel periodo [da,a] (ogni crociera conclusa ha toccato almeno 2 destinazioni)
+		
+			ESISTE cr: Crociera(cr) AND Itinerario(i) -> croc_itin(cr, i) AND cr.inizio>=da AND  cr.fine()<=a
+			
+	post:
+		- non ci sono modifiche sul livello estensionale dei dati
+		
+		Siano
+		- Destinazioni l'insieme di tutte le destinazioni visitate da tutte le crociere INIZIATE E CONCLUSE durante il periodo [da,a]
+		
+		- DestLunaDiMiele è l'insieme delle destinazioni toccate da crociere che sono lune di miele, iniziate e concluse nel periodo [da,a], ovvero
+		
+		DestLunaDiMiele = {d| Destinazione(d) 	AND ESISTE ldm,i: 
+		LunaDiMiele(ldm) AND Itinerario(i) AND croc_itin(ldm,i) AND ldm.inizio>=da AND ldm.fine()<=a AND  (partenza_iniziale(i,d) OR arrivo_finale(i,d) OR (ESISTE tp: TappaIntermedia(tp) AND itin_tappa(i,tp) AND tappa_dest(tp,d)))}
+		
+		
+		- DestFamiglie è l'insieme delle destinazioni toccate da crociere che sono per famiglie, iniziate e concluse nel periodo [da,a], ovvero
+		
+		DestFamiglie={d| Destinazione(d) 	AND ESISTE pfm,i: 
+		PerFamiglie(pfm) AND pfm.inizio>=da AND pfm.fine()<=a AND Itinerario(i) AND croc_itin(pfm,i) AND (partenza_iniziale(i,d) OR arrivo_finale(i,d) OR (ESISTE tp: TappaIntermedia(tp) AND itin_tappa(i,tp) AND tappa_dest(tp,d)))}
+		
+		- result= (|DestLunaDiMiele| + |DestFamiglie|) diviso per |Destinazioni| 

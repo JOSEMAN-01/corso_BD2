@@ -1,0 +1,13 @@
+Specifica dei tipi di dato
+
+
+Targa: stringa secondo standard
+CodiceFiscale: stringa secondo standard
+Telefono: stringa secondo standard
+
+Indirizzo: {
+	via : Stringa
+	civico: Stringa secondo standard
+	cap: Stringa secondo standard
+}
+

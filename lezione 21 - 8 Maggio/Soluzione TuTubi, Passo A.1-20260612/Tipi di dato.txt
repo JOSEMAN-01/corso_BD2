@@ -1,0 +1,14 @@
+Specifica dei tipi di dato
+
+
+FileVideo: 
+ - sequenza di byte che codifica un flusso video
+ - operazioni del tipo di dato
+ 		durataSec(f:FileVideo): Intero >= 0
+ 			pre: nessuna
+ 			post: result è la durata di 'f'
+
+
+Voto : 0..5 			
+
+TipoPlaylist = {pubblica, privata}

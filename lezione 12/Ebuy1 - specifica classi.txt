@@ -1,0 +1,12 @@
+Specifica classe Asta
+
+prezzoCorrente():int>0
+	pre: nessuna
+	post:
+		- Sia S l'insieme di tutti i Bid che sono associate a questa Asta, ovvero
+		
+			S={b|Bid(b) AND asta_bid(this,b)}
+			
+		- result = this.prezzoIniziale + rialzo*|S|
+		
+		restituisce result

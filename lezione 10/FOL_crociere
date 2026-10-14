@@ -1,0 +1,35 @@
+1. Ogni crociera viene effettuata utilizzando una nave
+	
+	∀c Crociera(c) → ∃n Nave(n) ∧ utilizza(c,n)
+
+2. Ogni crociera segue un itinerario
+
+	∀c Crociera(c) → ∃i Itinerario(i) ∧ segue(c,i)
+
+3. Gli itinerari hanno un nome univoco
+
+	¬∃ i1,i1_nome,i2,i2_nome (Itinerario(i1) ∧  Itinerario(i2) ∧ ¬(i1=i2) ∧ nome(i1,i1_nom) ∧ nome(i2,i2_nom) )→  i1_nom=i2_nom
+
+4. Ogni crociera tocca un certo insieme non vuoto di destinazioni
+
+	∀s,d insieme_dest(s) ∧ contiene(s,d) → Destinazione(d)
+	∧
+	∀i Itinerario(i) → ∃s,d insieme_dest(s) ∧ contiene(s,d)  ∧ tocca(i,s)
+
+
+5. Le crociere si dividono in crociere di luna di miele e crociere per famiglia.
+
+	∀c,c_lun,c_fam Crociera(c) → (LunaDiMiele(c_lun) ∨ PerFamiglie(c_fam))
+	∧
+	∀c_lun LunaDiMiele(c_lun) → (Crociera(c_lun) ∧ ¬PerFamiglie(c_lun))
+	∧
+	∀c_fam PerFamiglie(c_fam) → (Crociera(c_fam) ∧ ¬LunaDiMiele(c_fam))
+	∧
+	∀c Crociera(c) → (LunaDiMiele(c)∧¬PerFamiglie(c)) ∨ (¬LunaDiMiele(c) ∧ PerFamiglie(c))
+	
+	
+	
+
+
+Per ogni formula, determinare una interpretazione che sia un suo modello.
+

@@ -1,0 +1,5 @@
+[V.Somministrazione.trattamento_adeguato]
+
+Le somministrazioni devono applicare un trattamento che sia valido per la malattia associata all'infezione trattata, ovvero
+
+ALL s,t,inf,m,t: Somministrazione(s) AND somm_tratt(s,t) AND infez_somm(inf,s) AND infez_malatt(inf,m) -> malatt_tratt(m,t)

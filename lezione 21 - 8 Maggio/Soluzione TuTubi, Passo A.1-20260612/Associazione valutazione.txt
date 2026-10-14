@@ -1,0 +1,29 @@
+Specifica Associazione valutazione
+
+[V.valutazione.utente_ha_visualizzato_video]
+	Se (u:Utente, v:Video): valutazione allora deve esistere
+		vis:Visualizzazione tale che:
+			(u,vis): ut_vis,   (v, vis): vid_vis
+
+	ALL u,v,i_val   valutazione(u,v) and istante(u,v i_val) -->
+				EXISTS vis, i_vis    
+					ut_vis(u,vis) and vid_vis(v,vis) and istante(vis, i_vis) and i_vis <= i_val.
+
+
+[V.valutazione.utente_non_autore]
+	Se (u:Utente, v:Video):valutazione allora deve non esistere
+			(u,v):utente_pubblica_video
+
+	Formalmente:
+
+	ALL u, v    valutazione(u, v) --> 
+					not utente_pubblica_video(u,v).
+
+
+
+[V.valutazione.non_censurato]
+	not EXISTS u, vid, i_val, i_cens
+		Utente(u) and VideoCensurato(vid) and istante(u, vid, i_val) and
+			istante(vid, i_cens) and i_cens < i_val.
+
+			

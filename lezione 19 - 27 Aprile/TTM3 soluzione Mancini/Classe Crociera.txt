@@ -1,0 +1,7 @@
+Specifica classe Crociera
+
+	fine(): Data
+		pre: nessuna
+		post:
+			Sia i:Itinerario t.c. (this,i):croc_itin.			
+			result = this.inizio + i.durata_g()

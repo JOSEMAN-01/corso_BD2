@@ -1,0 +1,47 @@
+Specifica classe Video
+
+[V.Video.autore_non_risponde_a_se_stesso]
+	Per ogni r:Video, per cui esiste v:Video tale che
+		(r,v): risponde_a_video
+
+	sia:
+		- u:Utente tale che:
+			(u, r): pubblica
+	Deve che (u,v) non è un link di pubblica.
+
+	Formalmente:
+
+	ALL r,v,u   Video(r) and Video(v) and Utente(u) and 
+				pubblica(u,r) and 
+				risponde_a_video(r,v) -->
+								not pubblica(u,v)
+
+
+
+[V.Video_non_rispone_a_video_gia_censurato]
+	Per esercizio
+
+
+durataSec() : Intero >= 0
+	pre: nessuna
+	post: 
+		result = durataSec(this.flusso)
+
+		Formalmente, result è tale che:   
+			EXISTS f  flusso(this,f) and durataSec(f, result).
+
+
+
+n_visualizzazioni(): Intero >= 0
+	pre: nessuna
+	post:
+		result è il numero di oggetti v:Visualizzazione tali che:
+			(this, v): vid_vis.
+
+		Formalmente:
+
+		result = | {  vis  |   
+							Visualizzazione(vis) and 
+							vid_vis(this, vis) 
+				  } |.
+

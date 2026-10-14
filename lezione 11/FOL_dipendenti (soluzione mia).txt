@@ -1,0 +1,14 @@
+1. Tutte le persone hanno almeno un numero di telefono
+
+
+2. Ogni persona ha esattamente un nome
+
+3. Non ci sono dipendenti che lavorano in più di due dipartimenti
+
+NOT EXISTS d: Dipendente(d) AND Dipartimento(dipart1) AND Dipartimento(dipart2)  AND Dipartimento(dipart3) -> lavora(d,dipart1) AND lavora(d,dipart2) AND lavora(d,dipart3)
+
+4. Ogni dipartimento ha esattamente un direttore che è una persona
+
+ALL dip: Dipartimento(dip) -> EXISTS dir: Direttore(dir) AND Dirige(dir,dip)
+
+ALL dip: Dipartimento (dip) -> NOT EXISTS dir1,dir2: dir1!=dir2 AND Direttore(dir1) AND Direttore(dir2) AND Dirige(dir1,dip) AND Dirige(dir2,dip)

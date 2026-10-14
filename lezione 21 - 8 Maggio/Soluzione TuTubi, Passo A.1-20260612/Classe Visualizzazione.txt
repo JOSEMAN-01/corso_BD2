@@ -1,0 +1,7 @@
+Classe Visualizzazione
+
+
+[V.Visualizzazione.non_censurato]
+	not EXISTS vis, i_vis, vid, i_cens
+		Visualizzazione(vis) and istante(vis, i_vis) and vid_vis(vid, vis) and
+			VideoCensurato(vid) and istante(vid, i_cens) and i_cens < i_vis.

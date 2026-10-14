@@ -1,0 +1,20 @@
+
+1. Requisiti sugli impiegati. Di ogni impiegato il sistema deve rappresentare:
+	1.1. nome (stringa)
+	1.2. cognome (stringa) 
+	1.3. data di nascita (data)
+	1.4. stipendio attuale (importo economico, per semplicità in questa prima esercitazione, assumiamo un intero non negativo) 
+	1.5. il dipartimento (esattamente uno) al quale afferisce (v. req. 2)
+	1.6. la data di afferenza al suo dipartimento (data)
+	1.7. progetti (v. req. 3) nei quali è coinvolto (zero o più)
+
+
+2. Requisiti sui dipartimenti. Di ogni dipartimento il sistema deve rappresentare:
+	2.1. nome (stringa
+	2.2. numero di telefono del centralino (stringa secondo lo standard delle numerazioni telefoniche)
+	2.3. direttore (un impiegato, v. req. 1, anche nessuno)
+
+3. Requisiti sui progetti. Di ogni progetto il sistema deve rappresentare:
+	3.1. nome (stringa)
+	3.2. budget (importo economico, come req. 1.4)
+	3.3. impiegati coinvolti (v. req. 1, zero o più).

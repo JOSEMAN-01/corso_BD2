@@ -1,0 +1,55 @@
+Use-case GestionePrestazioni
+
+medici_idonei(s:Specializzazione): Medico [0..*]
+	pre: nessuna
+
+	post: 
+		se esistono medici con spec. primaria s, restituiscili;
+		altrimenti restituisci i medici con spec. sec. s
+
+		Formalmente
+
+		Sia MSP = { m  | 	Medico(m) and
+						med_spec_prim(m,s)
+				  }			
+
+
+		Sia MSS = { m  | 	Medico(m) and
+						med_spec(m,s)
+				  }.
+
+		Se MSP è vuoto, allora result = MSS altrimenti result = MSP.
+
+
+aggiungiMedico(p:Prestazione, m:Medico)
+	pre: not PrestazioneEseguita(p)
+	post:
+		Side effect: 
+			med_prest(m,p)
+
+
+	
+finalizzaPrestazione(p:Prestazione, i:DataOra)
+	pre: (not PrestazioneFinalizzata(p)) and
+		(i >= adesso) and
+		( EXISTS ipren istante_pren(p, ipren) and ipren <= i )
+		and (
+				ALL s  prest_spec(p,s) --> 
+						EXISTS m med_prest(m,p) and med_spec(m,s)
+		).
+	post:
+		Side effect:
+		- PrestazioneFinalizzata(p)
+		- inizio(p, i)
+
+
+registra_termine(p:Prestazione)
+	pre: PrestazioneFinalizzata(p) and 
+		 not PrestazioneEseguita(p) and 
+		 EXISTS i inizio(p, i) and i <= adesso
+	
+	post:
+		Sia i t.c.  inizio(p,i).
+
+		- PrestazioneEseguita(o)
+		- durata(p, adesso - i)

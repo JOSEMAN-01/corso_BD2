@@ -1,0 +1,14 @@
+Trigger su tabella Coltivazione
+
+Obiettivo: Non ci possono essere due coltivazioni contemporanee nello stesso campo
+Da intercettare: INSERT su Coltivazione
+Quando: Dopo la query
+Algoritmo:
+	
+	sia isError= EXISTS (
+				SELECT *
+				FROM Campo camp, Coltivazione colt
+				WHERE camp.id=new.campo AND camp.id=colt.camp AND colt.stato='InCorso'	AND colt.id<>new.id
+				)			
+	Se isError=TRUE solleva eccezione 'C'è una coltivazione in corso, non si possono registrare nuove coltivazioni'
+	Altrimenti permetti l'operazione

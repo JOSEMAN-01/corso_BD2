@@ -1,0 +1,14 @@
+Use-case ItinerariVisite
+
+itinerario(): List[ (letto:IntegerGZ, stanza:IntegerGZ, sett:IntegerGZ, piano:integer, padiglione:Stringa) ]
+
+	algoritmo:
+		Sia m:CodiceFiscale il valore del campo chiave della ennupla di tabella Medico associata all'attore che ha invocato l'operazione.
+
+		Restituisci il risultato di:
+
+			SELECT r.letto, r.stanza, r.sett, r.piano, r.padiglione
+			FROM Ricovero r, PrestazioneFinalizzataNonEseguita pfne
+			WHERE r.prestazione = pfne.prestazione 
+			  AND r.medico = m
+			ORDER BY r.piano, r.settore;

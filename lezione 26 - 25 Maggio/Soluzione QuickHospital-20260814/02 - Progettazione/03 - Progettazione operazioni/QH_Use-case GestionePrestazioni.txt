@@ -1,0 +1,146 @@
+Specifica realizzativa dello Use-case GestionePrestazioni
+
+
+medici_idonei(s:Stringa): Set[Medico.*] //Cioè restituisci un insieme contenente i record completi di Medico
+	pre: nessuna
+
+	post: 
+		BEGIN TRANSACTION
+
+		Q = SELECT m.*
+			FROM Specializzazione spec LEFT OUTER JOIN Medico m
+				ON spec.nome = m.spec_prim				
+			WHERE spec.nome = s;
+
+		Se Q è vuoto:
+			error, s non è il nome di una specializzazione
+		
+		Se Q = (NULL, ..., NULL):  //notare che la SELECT NON ha preso nessuna colonna di Specializzazione
+			// nessun medico ha s come spec. primaria
+			Q = SELECT m.*
+				FROM Medico m, med_spec ms
+				WHERE ms.medico = m.persona
+				  AND ms.spec = s;
+		COMMIT;	
+			// Usiamo una transazione ogni per evitare risultati inaspettati in caso di modifiche concorrenti al DB che dovessero avvenire tra le due query.				  
+		
+		Restituisci Q;
+
+
+aggiungiMedico(prest_id:integer, m:Codicefiscale)
+	algoritmo: 
+		BEGIN TRANSACTION;
+
+		Q = 
+			SELECT peseg.* 
+			FROM Prestazione p LEFT OUTER JOIN PrestazioneEseguita peseg ON p.id = pseg.id
+			WHERE p.id = prest_id;
+
+		Se Q è vuoto:
+			errore, prest_id non identifica una prestazione
+		Se Q <> (NULL, ..., NULL):
+			errore: La prestazione prest_id è già stata eseguita
+
+		INSERT INTO med_prest(medico, prestazione) VALUES (m, prest_id);
+
+		COMMIT;
+
+
+	
+finalizzaPrestazione(prest_id:integer, i:timestamp)
+	// per esercizio
+	//Soluzione GoogleLM
+	finalizzaPrestazione(prest_id: integer, i: timestamp)
+algoritmo:
+	BEGIN TRANSACTION;
+	SET CONSTRAINTS ALL DEFERRED;
+
+	-- 1. Controllo di esistenza, stato corrente e medico responsabile
+	Q = SELECT p.istante_pren, p.medico_resp, pf.id AS pf_id
+	    FROM Prestazione p LEFT OUTER JOIN PrestazioneFinalizzata pf 
+	      ON p.id = pf.id
+	    WHERE p.id = prest_id;
+
+	IF Q è vuoto:
+		errore, 'prest_id non identifica una prestazione';
+	IF Q.pf_id IS NOT NULL:
+		errore, 'La prestazione prest_id è già stata finalizzata o eseguita';
+	IF Q.medico_resp IS NULL:
+		errore, 'La prestazione prest_id non ha un medico responsabile assegnato';
+
+	-- 2. Controllo delle precondizioni temporali
+	IF i < NOW():
+		errore, 'L''istante di inizio i deve essere maggiore o uguale all''istante corrente';
+	IF i <= Q.istante_pren:
+		errore, 'L''istante di inizio i deve essere strettamente successivo all''istante di prenotazione';
+
+	-- 3. Controllo copertura di tutte le specializzazioni richieste
+	Sia uncovered_specs = EXISTS (
+		SELECT *
+		FROM prest_spec ps
+		WHERE ps.prestazione = prest_id
+		  AND NOT EXISTS (
+			SELECT *
+			FROM med_prest mp JOIN med_spec ms ON mp.medico = ms.medico
+			WHERE mp.prestazione = prest_id 
+			  AND ms.spec = ps.spec
+		  )
+	);
+
+	IF uncovered_specs:
+		errore, 'Ogni specializzazione richiesta dalla prestazione deve essere coperta da almeno un medico assegnato con tale specializzazione';
+
+	-- 4. Modifica dello stato del Database (Side-Effects)
+	
+	-- Inserimento nella superclasse delle prestazioni finalizzate
+	INSERT INTO PrestazioneFinalizzata(id, inizio) 
+	VALUES (prest_id, i);
+
+	-- Inserimento nella sottoclasse per garantire la completezza della gerarchia {disjoint, complete}
+	INSERT INTO PrestazioneFinalizzataNonEseguita(id) 
+	VALUES (prest_id);
+
+	-- Conferma del medico responsabile nella relazione delle prestazioni finalizzate
+	INSERT INTO med_resp_prest_fin(med, pf) 
+	VALUES (Q.medico_resp, prest_id);
+
+	COMMIT;
+
+
+registra_termine(prest_id:integer) //prest_id deve identificare una prestazione, in particola una PFNE 
+	//Infatti non possiamo lavorare direttamente coi record della tabella PrestazioneFinalizzata, a causa della sua generealizzazione disjoin, complete
+	algoritmo:
+		BEGIN TRANSACTION;
+		
+		SET CONSTRAINTS ALL DEFERRED;
+		/**
+		 Se i vincoli esterni di completezza o disgiunzione della gerarchia ([V.Prestazione.gen_disj_complete]) venissero controllati immediatamente dopo la DELETE, il DBMS vedrebbe la prestazione temporaneamente "orfana" di qualifica e bloccherebbe l'operazione. Rinviando la verifica al momento del COMMIT, il DBMS effettua il controllo solo quando sia la cancellazione che l'inserimento sono stati completati
+		**/
+
+		Q = SELECT pfin.*, pfne.*
+			FROM Prestazione p 
+				 LEFT OUTER JOIN
+				 (
+					PrestazioneFinalizzataNonEseguita pfne 
+					JOIN 
+					PrestazioneFinalizzata pfin 
+					ON pfne.id = pfin.id
+				 )
+				 ON p.id = pfne.id
+			WHERE p.id = prest_id;
+
+		IF Q è vuoto:
+			errore, prest_id non identifica una prestazione;
+		IF Q = (NULL, ..., NULL):
+			errore, la prestazione prest_id non tra quelle finalizzate ma non ancora eseguite;
+
+		IF Q.inizio > NOW():
+			errore, prest_id non è ancora iniziata;
+
+		DELETE FROM PrestazioneFinalizzataNonEseguita WHERE
+			id = prest_id;
+
+		INSERT INTO PrestazioneEseguita(id, durata) VALUES
+			(prest_id, NOW() - Q.inizio);
+
+		COMMIT;

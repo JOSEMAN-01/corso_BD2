@@ -1,0 +1,27 @@
+Differenze tra la ristrutturazione del Prof. e quella mia:
+
+SPECIFICA DEI TIPI DI DATO
+
+	- Periodo è semplicemente descritto tramite la tecnica del type+domain. Non si usa TSTZRANGE
+
+DIAGRAMMA CLASSI
+
+- Non c'è la classe Telefono, ma la classe ValoreTelefono
+- Nè email nè indirizzo sono identificatori per Paziente
+- Non ci sono identificatori primari per Paziente nè per Medico
+- Ricovero e PrestazioneEsterna NON sono state fuse su Prestazione, ma mantenute tramite sostituzione con associazioni
+	- Ricovero ancora non ha l'operazione periodo()
+- Creazione di nuove classi, apparentemente ridondanti, che velocizzerebbero l'accesso ai dati più utili
+	- PrestazioneNonFinalizzata
+	- PrestazioneFinalizzataNonEseguita
+	
+
+SPECIFICA DEI VINCOLI
+
+- Mi sono dimenticato dei vincoli che mantengono le proprietà disjoint o complete delle generalizzazioni cancellate
+
+IMPLEMENTAZIONE DELLO SCHEMA RELAZIONALE
+	- IMPORTANTE:
+	
+
+

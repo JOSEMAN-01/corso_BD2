@@ -1,0 +1,67 @@
+Specifica use-case "Strumenti Vendita"
+-----------------------------------
+(FROM Use-case Generatore Codici Post) generaCodicePost():stringa
+
+	pre: nessuna
+
+	post:
+		- Sia P_codici l'insieme di tutti i codici dei post esistenti, ovvero
+			
+			P_codici={p_codice|Post(p) AND stringa(p_codice) AND codice(p,p_codice)}
+			
+		- Allora nuovo_codice è una stringa diversa da tutti i valori in P_codici, ovvero
+		
+			stringa(nuovo_codice) AND (nuovo_codice NOT IN P_codici)
+			
+		- restituisci result = nuovo_codice
+
+creaPostCS(ogg: OggettoInVendita, utenteReg: UtenteRegistrato ,titolo:stringa, descrizione: stringa, metodoPagamento: enum, prezzo:int>0): CompraSubito
+
+	pre: nessuna
+	
+	post:
+		- Viene modificato il livello estensionale dei dati
+		
+		- Nuovo elemento del dominio: alpha
+		
+		- nuovo_codice= generaCodicePost()
+
+		- Sia "oggi" la data di oggi
+		
+		- alpha è nuova istanza di CompraSubito, ovvero
+		
+			CompraSubito(alpha) AND  codice(alpha,nuovo_codice) AND titolo(alpha,titolo) AND descrizione(alpha, descrizione) AND metodoPagamento(alpha,metodoPagamento) AND dCreazione(alpha,oggi) AND prezzo(p,prezzo)
+		
+		- Vengono creati 2 nuovi link per le associazioni post_oggetto e pubblica, ovvero
+			
+			post_oggetto(alpha,oggNuovo) = true
+			
+			pubblica(utenteReg,alpha) = true
+			
+		- viene restituito alpha
+		
+		
+creaPostAsta(utenteReg: UtenteRegistrato, oggUsato: OggettoUsato, titolo:stringa, descrizione: stringa, metodoPagamento: enum, rialzo: int>0, scadenza: timestamp, prezzoIniziale: int>0):Asta
+
+	pre: nessuna
+	
+	post:
+		- Viene modificato il livello estensionale dei dati
+		
+		- Nuovo elemento del dominio: beta
+		
+		- nuovo_codice= generaCodicePost()
+
+		- Sia "oggi" la data di oggi
+		
+		- beta è nuova istanza di Asta, ovvero
+		
+			Asta(beta) AND  codice(beta,nuovo_codice) AND titolo(beta,titolo) AND descrizione(beta, descrizione) AND metodoPagamento(beta,metodoPagamento) AND dCreazione(beta,oggi) AND rialzo(beta,rialzo) AND scadenza(beta, scadenza) AND prezzoIniziale(beta, prezzoIniziale)
+			
+		- Vengono creati 2 nuovi link per le associazioni post_oggetto e pubblica, ovvero
+			
+			post_oggetto(beta,oggNuovo) = true
+			
+			pubblica(utenteReg,beta) = true
+			
+		- viene restituito beta

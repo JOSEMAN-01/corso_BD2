@@ -1,0 +1,26 @@
+Specifica dei tipi di dato
+
+DeltaDataOra:
+	- giorno: Intero > 0
+	- ora: Ora
+
+
+GiornoSettimana = { lun, mar, mer, gio, ven, sab, dom }	
+
+FasciaOraria: (
+	da: Ora
+	a: Ora
+)
+
+Apertura: (
+	giorno: GiornoSettimana
+	fascia: FasciaOraria
+)
+
+
+
+Indirizzo: (
+	via: Stringa
+	civico: Stringa ~ '...'
+)
+

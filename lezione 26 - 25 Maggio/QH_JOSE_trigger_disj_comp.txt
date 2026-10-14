@@ -1,0 +1,44 @@
+Trigger miei
+
+REVOKE UPDATE ON Prestazione(id) FROM PUBLIC
+REVOKE UPDATE ON PrestazioneFinalizzata(id) FROM PUBLIC
+REVOKE UPDATE ON PrestazioneNonFinalizzata(id) FROM PUBLIC
+
+
+[V.Prestazione.gen.disj]
+	Quando: Dopo INSERT in PrestazioneFinalizzata e PrestazioneNonFinalizzata
+	Controllo: Il nuovo record non può far riferimento ad una Prestazione già associata ad un altro record
+	funzione(new)
+		Sia isError=EXISTS(
+				SELECT *
+				FROM PrestazioneFinalizzata pf, PrestazioneNonFinalizzata pnf
+				WHERE pf.id=new.id AND pnf.id=new.id
+				)
+				
+	Se isError=TRUE solleva eccezione "INSERT viola vincolo"
+	altrimenti, permetti l'operazione
+	
+	
+[V.Prestazione.gen.complete]
+	TRIGGER 1
+		Quando: Dopo INSERT(new) in Prestazione
+		Controllo: new.id deve occorrere in PrestazioneFinalizzata(id) o PrestazioneNonFinalizzata(id)
+		Se NOT EXISTS( 
+			SELECT id FROM PrestazioneFinalizzata WHERE id=new.id
+			UNION
+			SELECT id FROM PrestazioneNonFinalizzata WHERE id=new.id
+			
+		
+		) = TRUE, allora solleva eccezione
+		altrimenti permetti l'operazione
+		
+	TRIGGER 2
+		Quando: Dopo DELETE(old) in PrestazioneFinalizzata e PrestazioneNonFinalizzata
+		Controllo: Se old.id è in Prestazione, deve occorrere in PrestazioneFinalizzata e PrestazioneNonFinalizzata
+		Se EXISTS(
+			SELECT *
+			FROM (Prestazione p LEFT OUTER JOIN PrestazioneFinalizzata pf ON p.id=pf.id) LEFT OUTER JOIN PrestazioneNonFinalizzata pnf ON p.id=pnf.id
+			WHERE p.id=old.id
+			AND (pf.id IS NULL) AND (pnf.id IS NULL)
+		)=TRUE, allora solleva eccezione,
+		altrimenti permetti l'operazione

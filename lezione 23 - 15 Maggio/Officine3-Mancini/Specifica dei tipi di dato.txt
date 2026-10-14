@@ -1,0 +1,30 @@
+CREATE DOMAIN Stringa AS VARCHAR;
+
+CREATE TYPE __Indirizzo__ AS (
+	via Stringa
+	civico Stringa 
+	cap Stringa
+);
+
+CREATE DOMAIN Indirizzo AS __Indirizzo__
+	CHECK (
+		(via IS NOT NULL) AND
+		(civico IS NOT NULL) AND
+		--(cap IS NOT NULL) AND
+		civico ~ '[0-9]+(/[0-9a-zA-Z]+)?' AND
+		cap ~ '[0-9]{5}'
+	)
+;
+
+CREATE DOMAIN CodiceFiscale as Stringa
+	CHECK (value ~ '....');
+
+CREATE DOMAIN Telefono as Stringa
+	CHECK (value ~ '....');
+
+CREATE DOMAIN Targa as Stringa
+	CHECK (value ~ '....');
+
+
+
+

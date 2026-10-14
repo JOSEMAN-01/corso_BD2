@@ -1,0 +1,92 @@
+1.	Eliminazione di attributi multivalore
+		OK
+2.	Sostituzione dei tipi di dato concettuali con opportuni tipi supportati dal DBMS (tipi base o definiti dall’utente)
+	2.1 Indirizzo
+		CREATE DOMAIN GE1Integer AS Integer CHECK(value>=1);
+		CREATE DOMAIN GE0Integer AS Integer CHECK(value>=0);
+	
+		CREATE TYPE __Indirizzo__ AS(
+			via varchar(100),
+			civico varchar(100),
+			cap varchar(100)
+		);
+		
+		CREATE DOMAIN Indirizzo AS __Indirizzo__
+		check(
+			(value).via is not null AND
+			(value).civico is not null AND
+			(value).civico ~ '[0-9]+[a-zA-Z]?'
+			(value).cap is not null AND
+			(value).cap ~ '[0-9]{5}'
+		)
+	2.2 Telefono 
+		CREATE DOMAIN Telefono AS varchar(20) CHECK (
+    			VALUE ~ '^\+?[0-9]{7,15}$'
+		);
+	2.3 Codice Fiscale
+		CREATE DOMAIN CodiceFiscale AS varchar(16) CHECK(
+			VALUE ~ '...'
+		);
+	2.4 Targa
+		CREATE DOMAIN Targa AS varchar(7) CHECK(
+			VALUE ~ '...'
+		);
+	2.5 Il resto è stato direttamente cambiato nel diagramma
+	
+3.  Eliminazione delle generalizzazioni tra classi
+	[V.Staff.dipendente_assunzione]
+		ALL s:
+		Staff(s) -> 
+		(	tipo(s,Dipendente) 
+			<-> 
+			EXISTS dip_assunzione: assunzione(s,dip_assunzione)
+		)
+	[V.Staff.direttore_nascita]
+		ALL s:
+		Staf(s)->
+		(	tipo(s, Direttore)
+			<->
+			EXISTS dir_nascita: nascita(s, dir_nascita)
+		)
+		
+	[V.Officina.diretta_da_direttore]
+		ALL dir:
+		Staff(dir) AND Officina(off) AND dirige(off,dir)
+		->
+		tipo(dir,Direttore)
+	[V.RiparazioneTerminata.riconsegna_dopo_accettazione]
+		ALL r,x,y:
+		RiparazioneTerminata(r) AND accettazione(r,x) AND
+		riconsegna(r,y)
+		->
+		y>x
+	[V.Riparazione.isa.disjoint]
+		ALL r,ric,rt:
+		Riparazione(r) AND RiparazioneInCorso(ric) AND
+		RiparazioneTerminata(rt)
+		->
+		NOT ( rt_isa_r(rt,r) AND ric_isa_r(ric,r) )
+		
+	[V.Riparazione.isa.complete]
+		ALL r:
+		Riparazione(r)
+		->
+		EXISTS x: ric_isa_r(x,r) OR rt_isa_r(x,r)
+	
+4.  Eliminazione delle generalizzazioni tra associazioni
+	[V.dirige_isa_lavora]
+		ALL dir,off:
+		Staff(dir) AND tipo(dir,Direttore) AND Officina(off) 
+		AND dirige(dir,off) 
+		-> 
+		lavora(dir,off)
+	
+5.  Definizione di un identificatore per ogni classe
+6.  Selezione di un identificatore primario per ogni classe
+7.  Ridefinire vincoli esterni
+8.  Ridefinire operazioni di classe e use-case
+	 Dipendente.anni_servizio(): GE0Integer
+	 	pre: ... AND tipo(this, Dipendente)
+	 	...
+	 
+

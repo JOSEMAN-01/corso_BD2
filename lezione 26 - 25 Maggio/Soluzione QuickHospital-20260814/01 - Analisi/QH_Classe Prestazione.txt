@@ -1,0 +1,75 @@
+Classe Prestazione e sottoclassi
+
+
+Class Prestazione
+
+[V.Pretazione.istante_presunto_dopo_istante_pren]
+	ALL p, ipren, ipres Prestazione(p) and istante_pren(p, ipren) and inizio_presunto(p, ipres) --> ipres >= ipren
+
+
+Classe PrestazioneFinalizzata
+	periodo():Periodo
+		pre: nessuno
+		post:
+			result soddisfa:
+
+			EXISTS i
+				da(result, i) and inizio(this, i)
+				and
+				(not EXISTS f  a(result, f))
+
+
+[V.PrestazioneFinalizzata.inizio_dopo_istante_pren]
+	ALL p, ipren, ipres PrestazioneFinalizzata(p) and istante_pren(p, ipren) and inizio(p, i) --> i >= ipren
+
+
+
+[V.Ricovero.no_due_ricoveri_simult_stesso_paziente]
+	not EXISTS p, r1, r2
+		paz_prest(p, r1) and paz_prest(p, r2) and r1 != r2 and
+		Ricovero(r1) and Ricovero(r2) and
+		interseca( r1.periodo(), r2.periodo() ).
+
+
+Classe PrestazioneEseguita
+
+	periodo():Periodo
+		pre: nessuno
+		post:
+			result = [ this.inizio, this.fine() ]
+
+			EXISTS i, f
+				da(result, i) and inizio(this, i)
+				and
+				a(result, f) and fine(this, f)
+
+
+fine(): DataOra
+	pre: nessuna
+	post:
+		result = this.inizio + this.durata
+
+		Formalmente, result soddisfa la formula:
+
+			EXISTS i, d
+				inizio(this, i) and durata(this, d) and result = i + d
+
+
+
+[V.PrestazioneFinalizzata.specializzazioni]
+Ogni specializzazione necessaria ad una prestazione finalizzata è coperta da un medico assegnato.
+ovvero
+Il medico assegnato alla prestazione, ha la specializzazione richiesta 
+	ALL prest, spec
+		PrestazioneFinalizzata(prest) and Specializzazione(spec) and
+		prest_spec(prest, spec) -->
+			EXISTS m  	Medico(m) and med_spec(m, spec) and
+						med_prest(m, prest).
+
+
+[V.Prestazione.medico_non_paziente]
+Un paziente non può essere anche medico di una sua prestazione:
+	not EXISTS prest, paz  
+			Prestazione(prest) and 
+			paz_prest(paz, prest) and
+			med_prest(paz, prest).

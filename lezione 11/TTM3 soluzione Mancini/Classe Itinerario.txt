@@ -1,0 +1,54 @@
+Specifica classe Itinerario
+
+	durata_g(): Intero > 0
+		pre: nessuna
+		post: 
+			Sia (this,d) il link di assoc. arrivo_finale che coinvolge 'this' (con una qualche Destinazione d).
+
+			result = (this, d).istante.giorno
+
+	destinazioni(): Destinazione [0..*]
+		pre: nessuna
+		post:
+			Sia dest_p:Destinazione l'oggetto tale che 
+				(this, dest_p):partenza_iniziale
+
+			Sia dest_a:Destinazione l'oggetto tale che 
+				(this, dest_a):arrivo_finale
+
+			Sia T l'insieme degli oggetti t:TappaIntermedia tali che
+				(this, t):itin_tappa
+
+			Sia Dest_T l'insieme degli oggetti d:Destinazione tali che:
+				esiste t:T tale che (t, d):tappa_dest:
+
+				Dest_T = { d | d:Destinazione and (t,d):tappa_dest 
+									per qualche t:T }
+
+			result = {dest_p, dest_a} unione Dest_T.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

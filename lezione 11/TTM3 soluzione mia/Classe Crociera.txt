@@ -1,0 +1,37 @@
+Specifica classe Crociera
+
+	fine(): Data
+		pre: nessuna
+		post:
+			Sia i:Itinerario t.c. (this,i):croc_itin.			
+			result = this.inizio + i.durata_g()
+	
+	postiDisponibili(): int
+		pre: 
+		Questa Crociera è già associata ad una Nave, ovvero 
+			ESISTE n: Nave(n) AND croc_nave(this,n)
+		
+		Questa Crociera non è ancora iniziata, ovvero
+			adesso<this.inizio
+			
+		post:
+			
+			non ci sono modifiche a livello estensionale.
+			
+			postiPrenotati rappresenta il numero totale di posti prenotati per questa crociera, ovvero
+			
+				S={(pr,prPosti) | Prenotazione(pr) AND pren_croc(pr,this) AND posti(pr,prPosti)}
+			
+				b=(pr,prPosti) appartenente ad S
+			
+				postiPrenotati= SOMMATORIA di (prPosti), con indice: (pr,prPosti) IN b
+			
+			nCapienza rappresenta la capienza della nave associata a questa crociera, ovvero
+			
+				croc_nave(this,n) AND capienza(n,nCapienza)
+			
+			result è l'intero restituito.
+			
+			result= nCapienza - postiPrenotati
+			
+			

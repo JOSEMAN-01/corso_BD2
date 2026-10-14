@@ -1,0 +1,50 @@
+Infezione( id: serial, dRilevazione: date, stato: StatoInfez, dRisoluzione*: date, dEstirpaz*:date, coltivazione:varchar, malattia: varchar)
+	- vincolo di dominio: stato StatoInfez DEFAULT 'Attiva'
+	- primary key: id
+	- foreign key: coltivazione references Coltivazione(id)
+	- foreign key: malattia references Malattia(nomeScient)
+	- v.ennupla: (stato='Guarita')=dRisoluzione is not null
+	- v.ennupla: (stato='Estirpata')=dEstirpaz is not null
+	- v.ennupla: (dRisoluzione is null) OR (dRisoluzione >= dRilevazione)
+
+
+Somministrazione(id: serial, inizio: date, trattam: varchar, infezione: integer)
+	- primary key: id
+	- foreign key: trattam references Trattamento(id)
+	- foreign key: infezione references Infezione(id)
+
+Malattia(nomeScient: varchar, nomeComune: varchar,  sintomi: text, isGrave: boolean, trattam: varchar)
+	- primary key: nomeScient
+	- foreign key: trattam references Trattamento(id)
+
+Trattamento(id: varchar, principioAttivo:varchar, costoPerEttaro:real>0)
+	- primary key: id
+
+Campo (id: varchar, ettari: integer>0, coord:Coordinate, nazione: integer, consorzio: varchar)
+	- primary key: id
+ 	- foreign key: nazione references Nazione(id)
+	- foreign key: consorzio references Consorzio(id)
+
+Coltivazione (id: varchar, inizio: date, stato: StatoColt, fine*: date, motivo*: text, varieta: varchar, campo: varchar)
+	- primary key: id
+	- foreign key: varieta references VarietaColt(id)
+	- foreign key: campo references Campo(id)
+	- v.ennupla: fine is null OR fine>inizio
+	- v.ennupla: (stato='InCorso')= fine is null
+	- v.ennupla: (stato='Fallita') = (motivo is not null AND fine is not null)
+	- v.ennupla: (stato='ConclusaOK') = (motivo is null AND fine is not null)
+
+VarietaColt(id: varchar, nomeScient: varchar, nomeComune: varchar, durata: integer>0, riposo: integer>0)
+	- primary key: id
+	- unique: nomeScient
+
+Nazione(id: serial, nome: varchar, continente: varchar)
+	- primary key: id
+
+Continente(nome:varchar)
+	- primary key: nome
+
+
+Note:
+	- Gli attributi segnati con l'asterisco * sono facoltativi
+	- Il calcolo di un trattamento tiene conto degli ettari del campo su cui è applicato e del costo per ettaro, quindi: costo_trattamento= ettari_campo * costo_per_ettaro

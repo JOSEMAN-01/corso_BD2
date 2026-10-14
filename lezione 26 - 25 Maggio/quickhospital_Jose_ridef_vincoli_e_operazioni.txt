@@ -1,0 +1,133 @@
+Nuovi vincoli esterni dopo l'eliminazione delle generalizzazioni di classi
+
+1. ALL pr: Prestazione(pr) -> [ tipo(pr,'Ricovero') <-> EXISTS i: inizio(pr,i)]
+2. ALL pr: Prestazione(pr) -> [ tipo(pr,'Ricovero') <-> EXISTS l: let_ric(pr,l)
+3. periodo() avrà come precondizione il fatto che l'oggetto this deve essere di tipo 'PrestazioneEsterna'
+4. ALL p: Persona(p) -> (EXISTS paz: paz_is_p(paz,p) ) OR (EXISTS medic: medic_is_p(medic,p))
+
+---------------------------
+Nuovi vincoli esterni dopo l'eliminazione delle generalizzazioni di associazioni
+
+5. ALL m,pr,pf: Medico(m) AND PrestazioneFinalizzata(pf) AND Prestazione(pr) AND pf_is_pr(pf,pr) AND med_resp_prest_fin(m,pf) 
+->  med_resp_prest(m,pr)
+
+6. ALL m,pr: Medico(m) AND Prestazione(pr) AND med_resp_prest(m,pr) -> med_prest(m,pr)
+
+7. ALL m,sp: Medico(m) AND Specializzazione(sp) AND med_spec_prim(m,sp) -> med_spec(m,sp)
+
+---------------------------
+Ridefinire la specifica dei vincoli esterni e di classe ove necessario
+
+8. [V.Ricovero.no_due_ricoveri_simult_stesso_paziente]
+	Paziente(p) AND Prestazione(r1) AND tipo(r1,'Ricovero') AND Prestazione(r2) AND tipo(r2,'Ricovero') AND r1!=r2 AND paz_prest(p, r1) AND paz_prest(p, r2) AND interseca(r1.periodo(), r2.periodo())
+	
+9.[V.PrestazioneFinalizzata.inizio_dopo_istante_pren]
+	ALL pf,pr,i_pf,i_pren: PrestazioneFinalizzata(pf) AND inizio(pf,i_pf) AND Prestazione(pr) AND pf_is_pr(pf,pr) AND istante_pren(pr,i_pren) 
+	-> i_pren<i_pf
+	
+10. [V.PrestazioneFinalizzata.specializzazioni]
+	ALL pf,pr, spec:
+	PrestazioneFinalizzata(pf) AND pf_isa_pr(pf,pr) AND Specializzazione(spec) AND  prest_spec(pr, spec)
+	->
+	EXISTS m:
+	Medico(m) AND med_spec(m,spec) AND med_resp_prest_fin(m,prest)
+
+11. [V.Letto.no_due_ricoveri_simult]
+	NOT EXISTS l, r1, r2: Letto(l) AND Prestazione(r1) AND Prestazione(r2) AND tipo(r1,'Ricovero') AND tipo(r2, 'Ricovero) AND r1!=r2 AND let_ric(l, r1) AND let_ric(l, r2) AND interseca( r1.periodo(), r2.periodo() )
+
+-----------------
+Ridefinire le operazioni di classe ove necessario
+
+12. Prestazione.periodo(): Periodo
+	pre: 
+		- tipo(this, 'Ricovero')
+	post:
+		- result rappresenta l'inizio e la fine del ricovero, ovvero
+		...??
+
+13. PrestazioneEseguita.fine():
+	pre: nessuna
+	post: 
+		result soddisfa la formula
+		EXISTS pf,i, d: PrestazioneFinalizzata(pf) AND pe_isa_pf(this,pf) AND inizio(pf, i) AND durataMinuti(pf,d) AND DataOra(result) AND (result=i+d)
+
+14. PrestazioneEseguita.periodo():
+	Pre: nessuna
+	Post:
+		result soddisfa la seguente formula
+		Pre: nessuna
+		Post:
+			result soddisfa la seguente formula
+			EXISTS i,f:
+			Periodo(result) AND PrestazioneFinalizzata(pf) AND pe_isa_pf(this,pf) inizio(pf,i) AND da(result, i) AND fine_PrestazioneEseguita(this,f) AND a(result,f)
+			
+------------------------------
+Ridefinire le operazioni di use-case ove necessario
+
+15. GestionePrestazioni.aggiungiMedico(pr:Prestazione, m:Medico)
+	Pre: 
+		- NOT EXISTS pf,pe:
+		  PrestazioneFinalizzata(pf) AND PrestazioneEseguita(pe) AND pf_is_pr(pf,pr) AND pe_is_pf(pe,pf)
+	
+	POST:
+		- Nuova ennupla: med_prest(m,p)
+
+16. GestionePrestazioni.finalizzaPrestazione(pr:Prestazione, i:DataOra)
+	PRE:
+		-  NOT EXISTS pf,pe:
+		  PrestazioneFinalizzata(pf) AND PrestazioneEseguita(pe) AND pf_is_pr(pf,pr) AND pe_is_pf(pe,pf)	
+		- ALL p_ist_pren: istante_pren(pr, p_ist_pren) -> p_ist_pren < i
+i>=adesso
+		- EXISTS m: med_resp_prest(m,pr)
+		- Ogni specializzazione richiesta dalla prestazione, ha un medico che ce l’ha e che è coinvolto nella prestazione, ovvero
+		- ALL s: prest_spec(pr,s) → EXISTS m: med_prest(m,pr) AND med_spec(m,s)
+	
+	POST:
+		- Sia m tale che med_resp_prest(m,pr)
+		- Nuovo elemento del dominio: alpha
+		- Nuove ennuple:
+			- PrestazioneFinalizzata(alpha)
+			- pf_is_pr(alpha,pr)
+			- inizio(alpha,i)
+			- Il medico responsabile è ora confermato, ovvero
+			med_resp_prest_fin(m,pr)
+
+17. GestionePrestazioni.registra_termine(pf:PrestazioneFinalizzata)
+	#Ho cambiato il parametro della funzione
+	PRE:
+		- NOT EXISTS pe: PrestazioneEseguita(pe) AND pe_is_pf(pe,pf)
+		- EXISTS i: inizio(pf,i) AND i<=adesso
+	
+	POST:
+		- Nuovo elemento del dominio: alpha
+		- Sia i tale che inizio(pf,i)
+		- Nuove ennuple:
+			- PrestazioneEseguita(alpha)
+			- durataMinuti(alpha, adesso - i)
+			- pe_is_pf(alpha,pf)
+		- result= alpha
+
+18. GestioneRicoveri.aggiungiMedico(p:Prestazione, m: Medico)
+	PRE: 
+		- tipo(p,'Ricovero')
+		- NOT EXISTS pf,pe: PrestazioneFinalizzata(pf) AND PrestazioneEseguita(pe) AND pe_is_pf(pe,pf) AND pf_is_pr(pf,p)
+	POST:
+		- result =  GestionePrestazioni.aggiungiMedico(p, m)
+		
+19.  ItinerariVisite.itinerario() : (p:Prestazione, pos: IntGZ_not_null) [0..*]
+	PRE: nessuna
+	POST: 
+		- Sia m:Medico l'oggetto associato all'attore che ha invocato l'operazione
+		- Sia R = {r | Prestazione(r) AND tipo(r,'Ricovero') AND med_prest(m,r) AND (NOT EXISTS pf,pe: PrestazioneFinalizzata(pf) AND PrestazioneEseguita(pe) AND pe_is_pf(pe,pf) AND pf_is_pr(pf,p)) }
+		- Sia ricovero_LEQ(r1: Prestazione, r2: Prestazione)
+			PRE: nessuna
+			POST:
+				- Siano p1, p2, sett1, sett2 tali da soddisfare...
+					EXISTS l1,l2,sett1,sett2,st1,st2: let_ric(l1,r1) AND let_stanza(l1,st1) AND sett_stanza(sett1,st1) AND sett_piano(sett1,p1) AND let_ric(l2,r2) AND let_stanza(l2,st2) AND sett_stanza(sett2,st2) AND sett_piano(sett2,p2)
+				- result = true <-> [p2>p1 OR (p2=p1 AND sett2>=sett1)]
+
+		- result = sorted(R, ricovero_LEQ)
+		
+			
+
+

@@ -1,0 +1,36 @@
+Specifica ristrutturata vincoli esterni:
+
+[V.Persona.gen_complete]
+	ALL p Persona(p) --> [
+				( EXISTS paz   paz_isa_pers(paz, p) )
+				or
+				( EXISTS m     m_isa_pers(m, p) )
+	].
+
+
+[V.Prestazione.gen_disj_complete]	
+	ALL prest    Prestazione(prest) --> [
+					// disjoint
+					not EXISTS r, pe   
+							r_isa_p(r, prest) and pe_isa_p(pe, prest)
+					and
+					// complete
+					(  EXISTS x r_isa_p(x, prest) or pe_isa_p(x, prest) )
+	
+	].
+
+[Tutti gli altri vincoli per disjoint/complete, v. diagramma]
+
+
+[V.med_spec_prim_isa_med_spec]
+	ALL m,s   med_spec_prim(m,s) --> med_spec(m,s)
+
+[V.med_resp_prest_isa_med_prest]
+	ALL m, p  med_resp_prest(m,p) --> med_prest(m,p).
+
+[V.med_resp_prest_fin_isa_med_rest_prest]
+	ALL m,p   med_resp_prest_fin(m,p) --> med_resp_prest(m,p).
+
+	
+
+Eventuali altri vincoli: per esercizio.

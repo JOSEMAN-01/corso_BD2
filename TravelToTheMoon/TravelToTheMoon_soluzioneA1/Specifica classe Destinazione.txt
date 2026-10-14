@@ -1,0 +1,10 @@
+Specifica classe Destinazione
+
+	esotica(): Booleano
+		pre: nesuna
+		post:
+			L'operazione non fa side-effect.
+
+			Sia c:Continente tale che (this,c):dest_cont.
+			result = true se e solo se c.esotico = True
+

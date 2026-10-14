@@ -1,0 +1,59 @@
+1. Utente registrato
+	nickname: stringa (univoco*)
+	dRegistrazione: data
+	posts di vendita: (vedi req. 3)*
+	ogetti acquistati: (vedi req. 2)*
+	
+	
+2. Oggetto in vendita
+	- descrizione: stringa
+	- categoria (vedi req 4)
+	- metodi pagamento: bonifico o carta di credito
+	- stato: nuovo o usato
+		- se nuovo, allora prevede 2 anni di garanzia OBBLIGATORIA
+		- se usato, allora la garanzia è facoltativa
+		- se usato, può essere classificato come: ottimo, buono, discreto, da sistemare
+	- prezzo
+		deve essere calcolato in base al tipo di post (req. 3) a cui è associato (*)
+	
+3. Post
+	- Oggetto in vendita (vedi req. 2)
+	- Utente venditore (vedi req. 1)
+	- codice: stringa (univoco) (*)
+	- titolo: stringa (*)
+	- descrizione: stringa (*)
+	- Se prevede asta
+		- prezzo iniziale
+		- ammonto del rialzo: eur
+		- scadenza: DataOra
+		- ultimo bid (vedi req. 4)
+		- prezzo corrente
+			calcolato in base al prezzo iniziale + X rialzi
+	- Se NON prevede asta / compralo subito
+		- prezzo finale
+	
+4. Bid
+	- oggetto: (vedi req. 2)
+	- istante: DataOra
+	- bidder (vedi req. 1)
+	- offerta proposta: int > 0 (prezzo iniziale + X rialzi) 
+		
+5. Categoria*
+	- nome: stringa
+	
+6. Utenti non registrati*
+	
+
+Funzionalità del sistema
+	Utenti registrati
+		- possono pubblicare annunci (post) di singoli oggetti
+		- proporre un nuovo bid per gli oggetti in asta
+		- acquisto immediato di oggeti NON in asta
+		
+	Utenti non registrati*
+		- possono navigare il sito e fare ricerca dei post
+		- possono fare login
+		- possono registrarsi
+
+* tutti le frasi in asterisco indicano informazioni che ho intuito o aggiunto alle specifiche
+		

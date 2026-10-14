@@ -1,0 +1,12 @@
+Use-case GestioneRicoveri
+
+medici_idonei(s:Specializzazione): Medico [0..*]
+	pre: nessuna
+	post: 
+		result = GestionePrestazioni.medici_idonei(s)
+
+
+aggiungiMedico(r:Ricovero, m:Medico)	
+	pre: not PrestazioneEseguita(r)
+	post: 
+		Gestione_prestazioni.aggiungiMedico(r, m)

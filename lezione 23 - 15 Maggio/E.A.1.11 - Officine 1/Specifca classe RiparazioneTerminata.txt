@@ -1,0 +1,5 @@
+Specifca classe RiparazioneTerminata
+
+[V.RiparazioneTerminata.riconsegna]
+	Per ogni r:RiparazioneTerminata, deve essere:
+		r.riconsegna > r.accettazione.

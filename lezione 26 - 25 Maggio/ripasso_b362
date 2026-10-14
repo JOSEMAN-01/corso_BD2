@@ -1,0 +1,17 @@
+Persona(__cf__: CodFis)
+
+Dipartimento(__nome__: varchar)
+	incl: nome deve comparire in lavora(dip)
+	incl: nome deve comparire in dirige(dip)
+
+-- versione alternativa??
+dirige(__pers__:CodFis, dip:varchar)
+	altra chiave: dip
+	--Perché non ci sono queste FK?
+	fk: pers references Persona(cf)
+	fk: dip references Dipartimento(nome)
+	
+lavora(__pers__: CodFis, __dip__: varchar, aff: timestamp)
+	fk: pers references Persona(cf)
+	fk: dip references Dipartimento(nome)
+	

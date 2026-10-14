@@ -1,0 +1,8 @@
+Classe Letto
+
+
+[V.Letto.no_due_ricoveri_simult]
+	not EXIST l, r1, r2 Letto(l) and
+						r1 != r2 and 
+						let_ric(l, r1) and let_ric(l, r2) and
+						interseca(  r1.periodo(), r2.periodo()  ).

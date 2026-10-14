@@ -1,0 +1,92 @@
+Nazione(__nome__)
+
+Citta(__id__, nome, nazione)
+	fk: nazione references Nazione(nome)
+
+Persona(__cf__, nome, cognome, nascita)
+
+--Aggiunto da me perché mancava
+ValoreTelefono(__valore__)
+	incl: valore compare in telefono(valtel)
+
+Paziente(__persona__:CodiceFiscale, email, indirizzo)
+	fk: persona references Persona(cf)
+	incl.: persona compare in telefono(paziente) 
+
+-- Abbiamo accorpato med_spec_prim?? Sì, notare come facciamo un riferimento alla classe Specializzazione invece che all'associazione med_spec_prim
+
+Medico(__persona__, spec_prim)
+	fk: persona references Persona(cf)
+	incl:  persona compare in med_spec(medico) // 1..*
+	fk:    spec_prim references Specializzazione(nome)
+	fk:    (persona, spec_prim) references med_spec(medico, spec) -- [V.med_spec_prim_isa_med_spec]
+
+-- med_spec non è stato accorpato
+
+med_spec(__medico__:CodiceFiscale, __spec__)
+	fk: medico references Medico(persona)
+	fk: spec references Specializzazione(nome)
+
+-- Si è creata una dipendenza ciclica??
+-- Medico(persona, spec_prim) references med_spec(medico, spec)
+-- med_spec(medico) references Medico(persona)
+-- La si evita creando le tabelle Medico e med_spec, e successivamente inserendo la chiave
+
+
+-- Notare come il campo "paziente" è di tipo CodiceFiscale
+telefono(__paziente__:CodiceFiscale,__valtel__:Telefono)
+	fk: paziente ref. Paziente(persona)
+	-- non manca "fk: valtel ref. ValoreTelefono(valore)" ??
+	
+-- accorpamento dell'associazione "med_resp_prest"
+Prestazione(__id__:serial, istante_pren, inizio_presunto, medico_resp*:CodiceFiscale)
+	check: inizio_presunto >= istante_pren -- [V.Prestazione.istante_presunto_dopo_istante_pren]
+	fk: medico_resp references Medico(persona)
+	-- non serve nessun CHECK perché l'associazione accorpata non aveva attributi propri
+	
+-- dobbiamo considerare med_resp_prest_fin perché ha vincolo 1..1
+
+PrestazioneFinalizzata(__id__:integer, inizio)
+	fk: id references Prestazione(id)
+	--fk: id references med_resp_prest_fin(pf)
+
+-- la mia rappresentazione di med_resp_prest_fin
+-- Notare come solo "pf" è primary key
+med_resp_prest_fin(med:CodiceFiscale, __pf__: serial)
+	fk: med references Medico(persona)
+	fk: pf references PrestazioneFinalizzata(id)
+
+-- In realtà manca definire tante delle associazioni con molteplicità diversa da 0..* 
+
+PrestazioneFinalizzataNonEseguita(__id__)
+	fk: id references PrestazioneFinalizzata(id)	
+
+-- Attenzione: Tanti accorpamenti in seguito qui sotto
+	
+Padiglione(__nome__)
+
+-- Notare come abbiamo usato ON UPDATE CASCADE, perché il nome del Padiglione potrebbe cambiare in futuro, diverse volte
+
+Piano(__n__, __padiglione__)
+	fk: padiglione references Padiglione(nome)
+		ON UPDATE CASCADE
+
+Settore(__n__, __piano__, __padiglione__)
+	fk: (piano, padiglione) references Piano(n, padiglione)
+		ON UPDATE CASCADE
+
+Stanza(__n__, __sett__, __piano__, __padiglione__,  capienza)
+	fk: (sett, piano, padiglione) references Settore(n, piano, padiglione) 
+		ON UPDATE CASCADE
+
+Letto(__n__, __stanza__, __sett__, __piano__, __padiglione__)
+	fk: (stanza, sett, piano, padiglione) references Stanza(n, sett, piano, padiglione)
+
+
+Ricovero(__id__:integer, letto, stanza, sett, piano, padiglione)
+	fk: (letto, stanza, sett, piano, padiglione) references Letto(n, stanza, sett, piano, padiglione)
+	-- manca "fk: id references Prestazione(id)"??
+
+
+
+Nota: la scelta dei vincoli di identificazioni primari per le classi Letto, Stanza, Settore, Piano, e il combinato e il conseguente l'accorpamento delle associazioni let_ric, let_stanza, sett_stanza, set_piano, piano_pad ha portato a duplicazioni di dati (aspetto negativo), con il vantaggio di avere tutte le info necessari alla operazione di use-case itinerario() nella tabella Ricovero!  Si raccomanda di provare alternative e confrontarne pro e contro.

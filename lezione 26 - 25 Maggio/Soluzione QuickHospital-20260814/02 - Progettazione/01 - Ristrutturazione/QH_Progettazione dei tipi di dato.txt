@@ -1,0 +1,38 @@
+CREATE DOMAIN Stringa AS VARCHAR;
+CREATE DOMAIN DataOra AS timestamp;
+
+CREATE DOMAIN CodiceFiscale AS Stringa 
+	CHECK (value ~ '...');
+
+CREATE DOMAIN Email AS Stringa 
+	CHECK (value ~ '...');
+
+CREATE DOMAIN Telefono AS Stringa 
+	CHECK (value ~ '...');
+
+CREATE TYPE Indirizzo (
+	... // per esercizio
+);
+
+CREATE DOMAIN DurataPrest as INTERVAL
+	CHECK (value > 0);
+
+CREATE DOMAIN IntegerGZ as Integer
+	CHECK (value > 0);
+
+CREATE TYPE __CapienzaStanza__ AS (
+	n_letti_tipico IntegerGZ,
+	n_letti_max IntegerGZ
+);
+
+CREATE DOMAIN CapienzaStanza as __CapienzaStanza__
+	CHECK ( value.n_letti_tipico IS NOT NULL and value.n_letti_max IS NOT NULL and value.n_letti_tipico <= value.n_letti_max);
+
+
+CREATE TYPE __Periodo__ (
+	da DataOra,
+	a DataOra
+);	
+
+CREATE DOMAIN Periodo as __Periodo__
+	CHECK (value.a >= value.da);

@@ -1,0 +1,18 @@
+V.UtenteRegistrato.registrazione
+
+	La data di registrazione dell'utente non può essere superiore a quella di adesso, ovvero
+
+		ALL ur: UtenteRegistrato(ur) AND dRegistrazione(ur,ur_reg) -> ur_reg < adesso
+		
+
+V.Bid.asta_chiusa
+
+	Non esistono Bid che sono stati inseriti per un'Asta già scaduta
+	
+		ALL a,b: Asta(a) AND Bid(b) AND asta_bid(a,b) AND istante(b, b_ist) AND scadenza(a,a_scad) ->  b_ist < a_scad
+		
+Note: 
+	- V.Bid.asta_chiusa non dovrebbe essere imposto dalle precondizioni di un'operazione use-case?
+	- Dove dovrei imporre il vincolo che l'istante di scadenza di un asta APPENA CREATA non può essere minore dell'istante corrente??
+		
+	

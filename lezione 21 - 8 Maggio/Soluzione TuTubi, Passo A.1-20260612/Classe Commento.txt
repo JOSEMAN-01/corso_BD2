@@ -1,0 +1,15 @@
+Specifica Classe Commento
+
+
+[V.Commento.visualizzazione_pregressa]
+	ALL c, ic, u, v    
+		Commento(c) and istante(c, ic) and
+		comm_vid(c, v) and comm_ut(c, u)
+			-->
+				EXISTS vis, ivis   
+					Visualizzazione(vis) and
+					istante(vis, ivis) and ivis < ic and
+					ut_vis(u, vis) and
+					vid_vis(v, vis).
+
+

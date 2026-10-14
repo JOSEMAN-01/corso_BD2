@@ -1,0 +1,28 @@
+Use-case Itinerari visite
+
+itinerario(): (r:Ricovero, pos:Intero > 0) [0..*]
+
+	pre: nessuna
+	post:
+		Sia m:Medico l'oggetto associato all'attore che ha invocato l'operazione.
+
+		R = { r  |  Ricovero(r) and not PrestazioneEseguita(r) and
+						med_prest(m, r)
+			}
+
+		result = sorted(R; ricovero_LEQ)
+
+
+		dove ricovero_LEQ(r1:Ricovero, r2:Ricovero): Booleano
+				pre: nessuna
+				post: 
+					Siano p1, p2, sett1, sett2 tali da soddisfare:
+
+						EXISTS l1, l2, st1, st2
+							let_ric(l1, r1) and let_stanza(l1, st1) and
+							sett_stanza(sett1, st1), and set_piano(sett1, p1) and
+							let_ric(l2, r2) and let_stanza(l2, st2) and
+							sett_stanza(sett2, st2), and set_piano(sett2, p2)
+
+					result = true <--> 
+						[ p2 > p1 or (p2 = p1 and sett2 >= sett1) ]

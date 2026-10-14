@@ -1,0 +1,92 @@
+Progettazione del vincolo esterno ristrutturato (si lasciano tutti gli altri per esercizio!!):
+
+[V.Prestazione.gen_disj_complete]	
+	ALL prest    Prestazione(prest) --> [
+					// disjoint
+					not EXISTS r, pe   
+							r_isa_p(r, prest) and pe_isa_p(pe, prest)
+					and
+					// complete
+					(  EXISTS x r_isa_p(x, prest) or pe_isa_p(x, prest) )
+	
+	].
+
+Strategia:
+	- Politiche di accesso ai dati + trigger
+
+
+Politiche di accesso ai dati:
+	impedisci:
+		-- Dovrei farlo per tutte le colonne che sono PK e di tipo serial
+		UPDATE su Prestazione(id)
+		UPDATE su PrestazioneFinalizzata(id)
+		UPDATE su PrestazioneNonFinalizzata(id)
+
+
+Trigger:
+	Istante di intercettazione: AFTER
+	Eventi intercettati:
+		INSERT(new) in Prestazione
+		INSERT(new) in PrestazioneNonFinalizzata
+		INSERT(new) in PrestazioneFinalizzata
+		DELETE(old) in PrestazioneNonFinalizzata
+		DELETE(old) in PrestazioneNonFinalizzata
+
+--Attenzione GoogleLM dice che c'è un errore grave nelle condizioni WHERE (come avevo intuito). Soluzion proposta alla fine del doc
+	Funzione(old, new):
+		// a causa degli eventi, esattamente una tra old e new è non-NULL.
+		
+		id integer = NULL 
+		
+		
+		if evento è INSERT:
+			id = new.id //Questo funzione perché siamo sicuri che Prestazione e le sue sottoclassi hanno la PK con lo stesso nome
+		else if evento è DELETE
+			id = old.id
+		else:
+			errore, evento non previsto
+
+		error Boolean = FALSE
+		
+		SELECT count(*) <> 1 INTO STRICT error 
+		--INTO STRICT è IN QUESTO CASO completamente equivalente al normale INTO
+		FROM PrestazioneFinalizzata pf, PrestazioneNonFinalizzata pnf
+		WHERE pf.prestazione = id AND pnf.prestazione = id;
+
+		if error=TRUE:
+			errore, disjoint e complete non soddisfatti
+
+		Altrimenti permetti l'operazione
+
+
+	Nota: Dato che intercettiamo eventi su tre tabelle, abbiamo bisogno di tre trigger, ma riusciamo ad usare la stessa funzione.
+	
+	
+-- Soluzione GoogleLM
+
+Politiche di Accesso: 
+	REVOKE UPDATE (id) ON Prestazione FROM PUBLIC; 
+	REVOKE UPDATE (id) ON PrestazioneFinalizzata FROM PUBLIC; 
+	REVOKE UPDATE (id) ON PrestazioneNonFinalizzata FROM PUBLIC;
+
+Trigger:
+	Cosa intercettare: 
+		- INSERT ON Prestazione
+		- INSERT, DELETE ON PrestazioneFinalizzata
+		- INSERT, DELETE ON PrestazioneNonFinalizzata
+	Quando: Dopo l'esecuzione della query
+	Algoritmo:
+		funzione(old,new):
+			id_target = NULL
+			if evento è INSERT:
+				id_target = new.id 
+			else if evento è DELETE
+				id_target = old.id
+				
+			SELECT (
+			    (SELECT count(*) FROM PrestazioneFinalizzata WHERE id = id_target) +
+			    (SELECT count(*) FROM PrestazioneNonFinalizzata WHERE id = id_target)
+			) <> 1 INTO error;
+
+		if error=TRUE: 'errore, disjoint e complete non soddisfatti'
+		altrimenti permetti l'operazione
